@@ -1,0 +1,30 @@
+name: Authorize Org
+description: 'Authorize an org to SFDX and Cumulus with an SFDX Auth URL'
+inputs:
+  auth-url:
+    description: 'SFDX auth URL'
+    required: true
+  org-name:
+    description: 'Name of the org'
+    required: true
+  dev-hub:
+    description: 'Set org as default Dev Hub'
+    required: true
+    default: false
+runs:
+    using: "composite"
+    steps:
+      - name: Authenticate to Org
+        run: |
+          echo '${{ inputs.auth-url }}' > sfdx_auth
+          if [ '${{ inputs.dev-hub }}' == 'true' ] || [ '${{ inputs.dev-hub }}' == 'True' ]; then
+            DEV_HUB='-d'
+          else
+            DEV_HUB=''
+          fi
+          sfdx auth:sfdxurl:store -f sfdx_auth -a '${{ inputs.org-name }}' $DEV_HUB
+          rm sfdx_auth
+          if [ '${{ inputs.dev-hub }}' != 'true' ] && [ '${{ inputs.dev-hub }}' != 'True' ]; then
+            cci org import '${{ inputs.org-name }}' '${{ inputs.org-name }}'
+          fi
+        shell: bash
