@@ -14,9 +14,15 @@ inputs:
 runs:
     using: "composite"
     steps:
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
       - name: Install Salesforce CLI
         run: |
-          npm install --global @salesforce/cli
+          npm uninstall --global sfdx-cli @salesforce/cli
+          npm install --global @salesforce/cli --force
           sf --version
         shell: bash
 
